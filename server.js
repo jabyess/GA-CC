@@ -13,6 +13,7 @@ var API_KEY = config.API_KEY;
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.set('port', (process.env.PORT || 3000));
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
@@ -76,6 +77,6 @@ app.post('/favorites', function(req, res) {
   res.send(data);
 });
 
-app.listen(3000, function() {
+app.listen(app.get('port'), function() {
   console.log("Listening on port 3000");
 });
