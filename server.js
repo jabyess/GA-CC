@@ -67,7 +67,6 @@ app.post('/favorites', function(req, res) {
     res.send("Error");
     return;
   }
-  console.log(req.body);
   
   var data = JSON.parse(fs.readFileSync('./data.json'));
   data.push(req.body);

@@ -3,7 +3,7 @@
 // see very bottom of function where we pass them in
 (function(w, d) {
 
-	// create a global object to store search results etc in
+	// create a global object to store search results in
 	w.omdbGlobals = {};
 
 	// event listeners to for search form elements
@@ -15,11 +15,13 @@
 		form.addEventListener('submit', performSearchAjax);
 	}
 
+	// event listeners for the view favorites button
 	function viewFavoritesEventListeners() {
 		var showFavButton = d.getElementById('show-favorites');
 		showFavButton.addEventListener('click', viewFavorites);
 	}
 
+	// actually runs the ajax call for searching
 	function performSearchAjax() {
 		// build params object for extensibility later
 		event.preventDefault();
@@ -34,7 +36,6 @@
 		
 		// onload is where we handle the results.
 		request.onload = function() {
-			console.log(request.responseText);
 			processResults(request.responseText);
 		};
 		
@@ -102,7 +103,6 @@
 	// logic to see if the checkbox is checked already or not
 	function handleFavoriteChange(e) {
 		var checked = e.target.checked;
-		console.log(e.target.value);
 		if(checked) {
 			addToFavorites(e.target.value);
 		}
@@ -115,19 +115,20 @@
 		request.open('POST', '/favorites', true);
 		request.setRequestHeader('Content-Type', 'application/json');
 		request.onload = function() {
-			console.log('completed');
+			console.log('added to favorites');
 		}
 
 		request.send(JSON.stringify(payload));
 	}
 
+	// fires when a movie title is clicked
 	function showMetaInfo(id) {
 		// lookup movie by id in global store
 		var movieMeta = w.omdbGlobals[id];
-		console.log(movieMeta);
 
 		// build template
 		var metaTemplate = '<ul class="meta-info">'+
+		'<li class="meta-title">Title: '+movieMeta.title+'</li>' +
 		'<li class="meta-year">Year: '+movieMeta.year+'</li>' +
 		'<li class="meta-id">IMDB ID: '+movieMeta.imdbID+'</li>' +
 		'</ul>';
@@ -139,26 +140,26 @@
 
 	// fires when show favorites button is clicked
 	function viewFavorites() {
-
+		// fetch favorites data from api
 		var favReq = new XMLHttpRequest();
 		favReq.open('GET', '/favorites', true);
 		favReq.onload = function() {
 			var favHtml = [];
-			
 			var favorites = JSON.parse(favReq.responseText);
-			console.log(favorites);
+
+			// loop over each result and make an html string out of it
 			favorites.forEach(function(fav) {
 				favHtml.push(createFavoriteItem(fav));
 			});
-			console.log(favHtml);
+
 			var favContainer = d.getElementsByClassName('favorites-titles')[0];
-			console.log(favContainer);
 			var favString = favHtml.join('');
 			favContainer.innerHTML = favString;
 		};
 		favReq.send();
 	}
 
+	// returns a string of html
 	function createFavoriteItem(values) {
 		var favTemplate = '<div class="favorite-item">'+
 		values.title +
@@ -167,7 +168,9 @@
 		return favTemplate;
 	}
 
+	// returns a string of html for results values
 	function createResultItem(values) {
+		// template for result listings
 		var template = '<div class="results-item">'+
 		'<div class="results-item__fav">'+
 			'<input type="checkbox" value="'+values.imdbID+'">' +
